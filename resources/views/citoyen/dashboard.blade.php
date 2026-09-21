@@ -3,37 +3,34 @@
 @section('title', 'Tableau de bord')
 
 @section('content')
-<h1 class="text-xl font-semibold text-gray-800 mb-6">Bonjour, {{ auth()->user()->prenom }}</h1>
-
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-    <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <p class="text-2xl font-semibold text-gray-800">{{ $stats['demandes_total'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">Demandes déposées</p>
-    </div>
-    <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <p class="text-2xl font-semibold text-yellow-600">{{ $stats['demandes_en_cours'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">En cours de traitement</p>
-    </div>
-    <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <p class="text-2xl font-semibold text-green-700">{{ $stats['rendez_vous_a_venir'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">Rendez-vous à venir</p>
-    </div>
-    <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <p class="text-2xl font-semibold text-red-600">{{ $stats['notifications_non_lues'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">Notifications non lues</p>
-    </div>
+<div class="mb-6">
+    <h1 class="text-xl font-semibold text-gray-800">Bonjour, {{ auth()->user()->prenom }}</h1>
+    <p class="text-sm text-gray-500 mt-1">Voici un aperçu de votre activité sur E-Mairie Batchenga.</p>
 </div>
 
-<div class="flex gap-3 mb-8">
-    <a href="{{ route('citoyen.demandes.create') }}" class="bg-green-700 text-white text-sm rounded-md px-4 py-2 hover:bg-green-800">Déposer une demande</a>
-    <a href="{{ route('citoyen.rendez-vous.create') }}" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-md px-4 py-2 hover:bg-gray-50">Prendre un rendez-vous</a>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <x-stat-card icon="file-text" :value="$stats['demandes_total']" label="Demandes déposées" color="gray" />
+    <x-stat-card icon="clock" :value="$stats['demandes_en_cours']" label="En cours de traitement" color="yellow" />
+    <x-stat-card icon="calendar" :value="$stats['rendez_vous_a_venir']" label="Rendez-vous à venir" color="green" />
+    <x-stat-card icon="bell" :value="$stats['notifications_non_lues']" label="Notifications non lues" color="red" />
+</div>
+
+<div class="flex flex-wrap gap-3 mb-8">
+    <a href="{{ route('citoyen.demandes.create') }}" class="inline-flex items-center gap-2 bg-green-700 text-white text-sm rounded-md px-4 py-2.5 hover:bg-green-800">
+        <x-icon name="file-text" />
+        Déposer une demande
+    </a>
+    <a href="{{ route('citoyen.rendez-vous.create') }}" class="inline-flex items-center gap-2 bg-white border border-gray-300 text-gray-700 text-sm rounded-md px-4 py-2.5 hover:bg-gray-50">
+        <x-icon name="calendar" />
+        Prendre un rendez-vous
+    </a>
 </div>
 
 <div class="grid md:grid-cols-2 gap-6">
-    <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <h2 class="text-sm font-semibold text-gray-700 mb-3">Dernières demandes</h2>
+    <div class="bg-white rounded-lg shadow-sm p-5">
+        <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Dernières demandes</h2>
         @forelse ($dernieresDemandes as $demande)
-            <a href="{{ route('citoyen.demandes.show', $demande) }}" class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 text-sm hover:bg-gray-50 -mx-2 px-2 rounded">
+            <a href="{{ route('citoyen.demandes.show', $demande) }}" class="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0 text-sm hover:bg-gray-50 -mx-2 px-2 rounded transition">
                 <span class="text-gray-700">{{ $demande->service->nom }}</span>
                 <x-badge-statut :statut="$demande->statut" />
             </a>
@@ -42,12 +39,19 @@
         @endforelse
     </div>
 
-    <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <h2 class="text-sm font-semibold text-gray-700 mb-3">Prochain rendez-vous</h2>
+    <div class="bg-white rounded-lg shadow-sm p-5">
+        <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Prochain rendez-vous</h2>
         @if ($prochainRdv)
-            <p class="text-sm text-gray-700">{{ $prochainRdv->service?->nom ?? $prochainRdv->motif }}</p>
-            <p class="text-sm text-gray-500 mt-1">{{ \Carbon\Carbon::parse($prochainRdv->date_rdv)->translatedFormat('d F Y') }} à {{ $prochainRdv->creneau }}</p>
-            <x-badge-statut :statut="$prochainRdv->statut" />
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-lg bg-green-100 text-green-700 flex items-center justify-center shrink-0">
+                    <x-icon name="calendar" />
+                </div>
+                <div>
+                    <p class="text-sm text-gray-700 font-medium">{{ $prochainRdv->service?->nom ?? $prochainRdv->motif }}</p>
+                    <p class="text-sm text-gray-500 mt-0.5">{{ \Carbon\Carbon::parse($prochainRdv->date_rdv)->translatedFormat('d F Y') }} à {{ $prochainRdv->creneau }}</p>
+                    <div class="mt-2"><x-badge-statut :statut="$prochainRdv->statut" /></div>
+                </div>
+            </div>
         @else
             <p class="text-sm text-gray-400">Aucun rendez-vous à venir.</p>
         @endif

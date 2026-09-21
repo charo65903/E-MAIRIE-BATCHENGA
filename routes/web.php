@@ -23,6 +23,9 @@ use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
 
 use App\Http\Controllers\ChatbotController;
 
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
+
 use App\Http\Controllers\PublicController;
 
 use App\Http\Controllers\DocumentVerificationController;
@@ -47,6 +50,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/connexion', [AuthenticatedSessionController::class, 'store']);
     Route::get('/inscription', [RegisteredUserController::class, 'create'])->name('register');
     Route::post('/inscription', [RegisteredUserController::class, 'store']);
+    Route::get('/mot-de-passe-oublie', [PasswordResetLinkController::class, 'create'])->name('password.request');
+Route::post('/mot-de-passe-oublie', [PasswordResetLinkController::class, 'store'])->name('password.email');
+Route::get('/reinitialiser-mot-de-passe/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+Route::post('/reinitialiser-mot-de-passe', [NewPasswordController::class, 'store'])->name('password.update');
 });
 
 Route::middleware('auth')->group(function () {

@@ -5,16 +5,17 @@ namespace App\Http\Controllers\Agent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Agent\RejeterDemandeRequest;
 use App\Models\Demande;
-use App\Models\NotificationApp;
 use App\Services\DocumentGenerationService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DemandeController extends Controller
 {
+    public function __construct(private NotificationService $notifications) {}
+
     /**
-     * Liste + recherche intelligente par mots-clés / filtre par statut
-     * (besoin fonctionnel "Recherche intelligente des dossiers").
+     * Liste + recherche intelligente par mots-clés / filtre par statut.
      */
     public function index(Request $request)
     {
@@ -41,9 +42,6 @@ class DemandeController extends Controller
         return view('agent.demandes.show', compact('demande'));
     }
 
-    /**
-     * L'agent prend la demande en charge : passage en "en_cours".
-     */
     public function prendreEnCharge(Demande $demande)
     {
         abort_unless($demande->statut === 'en_attente', 403, 'Cette demande ne peut plus être prise en charge.');
@@ -53,15 +51,16 @@ class DemandeController extends Controller
             'statut' => 'en_cours',
         ]);
 
-        $this->notifier($demande, 'demande', "Votre demande concernant « {$demande->service->nom} » est en cours de traitement.");
+        $this->notifications->notifier(
+            $demande->citoyen,
+            'Suivi de votre demande',
+            "Votre demande concernant « {$demande->service->nom} » est en cours de traitement.",
+            'demande'
+        );
 
         return back()->with('success', 'Demande prise en charge.');
     }
 
-    /**
-     * Validation : génère le document administratif + QR code (§2 besoins fonctionnels)
-     * et notifie le citoyen.
-     */
     public function valider(Demande $demande, DocumentGenerationService $generateur)
     {
         abort_unless(in_array($demande->statut, ['en_attente', 'en_cours']), 403);
@@ -73,7 +72,12 @@ class DemandeController extends Controller
 
         $generateur->genererPourDemande($demande);
 
-        $this->notifier($demande, 'document', "Votre demande concernant « {$demande->service->nom} » a été validée. Le document est disponible au téléchargement.");
+        $this->notifications->notifier(
+            $demande->citoyen,
+            'Demande validée',
+            "Votre demande concernant « {$demande->service->nom} » a été validée. Le document est disponible au téléchargement sur votre espace citoyen.",
+            'document'
+        );
 
         return back()->with('success', 'Demande validée et document généré.');
     }
@@ -88,19 +92,13 @@ class DemandeController extends Controller
             'motif_rejet' => $request->motif_rejet,
         ]);
 
-        $this->notifier($demande, 'demande', "Votre demande concernant « {$demande->service->nom} » a été rejetée. Motif : {$request->motif_rejet}");
+        $this->notifications->notifier(
+            $demande->citoyen,
+            'Demande rejetée',
+            "Votre demande concernant « {$demande->service->nom} » a été rejetée. Motif : {$request->motif_rejet}",
+            'demande'
+        );
 
         return back()->with('success', 'Demande rejetée.');
-    }
-
-    private function notifier(Demande $demande, string $type, string $message): void
-    {
-        NotificationApp::create([
-            'user_id' => $demande->citoyen_id,
-            'titre' => 'Suivi de votre demande',
-            'message' => $message,
-            'type' => $type,
-            'lu' => false,
-        ]);
     }
 }

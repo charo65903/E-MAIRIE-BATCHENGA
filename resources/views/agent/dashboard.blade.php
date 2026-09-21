@@ -3,31 +3,25 @@
 @section('title', 'Tableau de bord')
 
 @section('content')
-<h1 class="text-xl font-semibold text-gray-800 mb-6">Tableau de bord agent</h1>
-
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-    <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <p class="text-2xl font-semibold text-yellow-600">{{ $stats['demandes_en_attente'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">Demandes en attente</p>
-    </div>
-    <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <p class="text-2xl font-semibold text-blue-600">{{ $stats['mes_demandes_en_cours'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">Mes demandes en cours</p>
-    </div>
-    <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <p class="text-2xl font-semibold text-green-700">{{ $stats['demandes_traitees_par_moi'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">Traitées par moi</p>
-    </div>
-    <div class="bg-white border border-gray-200 rounded-lg p-4">
-        <p class="text-2xl font-semibold text-gray-800">{{ $stats['rendez_vous_aujourdhui'] }}</p>
-        <p class="text-xs text-gray-500 mt-1">Rendez-vous aujourd'hui</p>
-    </div>
+<div class="mb-6">
+    <h1 class="text-xl font-semibold text-gray-800">Tableau de bord agent</h1>
+    <p class="text-sm text-gray-500 mt-1">Bonjour {{ auth()->user()->prenom }}, voici l'activité du jour.</p>
 </div>
 
-<div class="bg-white border border-gray-200 rounded-lg p-4">
-    <h2 class="text-sm font-semibold text-gray-700 mb-3">Demandes à traiter</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <x-stat-card icon="clock" :value="$stats['demandes_en_attente']" label="Demandes en attente" color="yellow" />
+    <x-stat-card icon="briefcase" :value="$stats['mes_demandes_en_cours']" label="Mes demandes en cours" color="blue" />
+    <x-stat-card icon="check-circle" :value="$stats['demandes_traitees_par_moi']" label="Traitées par moi" color="green" />
+    <x-stat-card icon="calendar" :value="$stats['rendez_vous_aujourdhui']" label="Rendez-vous aujourd'hui" color="gray" />
+</div>
+
+<div class="bg-white rounded-lg shadow-sm p-5">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Demandes à traiter</h2>
+        <a href="{{ route('agent.demandes.index') }}" class="text-xs text-green-700 hover:underline">Voir tout</a>
+    </div>
     @forelse ($demandesATraiter as $demande)
-        <a href="{{ route('agent.demandes.show', $demande) }}" class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 text-sm hover:bg-gray-50 -mx-2 px-2 rounded">
+        <a href="{{ route('agent.demandes.show', $demande) }}" class="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0 text-sm hover:bg-gray-50 -mx-2 px-2 rounded transition">
             <span class="text-gray-700">{{ $demande->citoyen->prenom }} {{ $demande->citoyen->nom }} — {{ $demande->service->nom }}</span>
             <x-badge-statut :statut="$demande->statut" />
         </a>

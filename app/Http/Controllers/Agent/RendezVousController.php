@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Agent;
 
 use App\Http\Controllers\Controller;
-use App\Models\NotificationApp;
 use App\Models\RendezVous;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class RendezVousController extends Controller
 {
+    public function __construct(private NotificationService $notifications) {}
+
     public function index(Request $request)
     {
         $rendezVous = RendezVous::with(['citoyen', 'service'])
@@ -21,20 +23,16 @@ class RendezVousController extends Controller
         return view('agent.rendez-vous.index', compact('rendezVous'));
     }
 
-    /**
-     * Annulation côté agent (ex : absence du citoyen, empêchement du service).
-     */
     public function annuler(RendezVous $rendezVous)
     {
         $rendezVous->update(['statut' => 'annule']);
 
-        NotificationApp::create([
-            'user_id' => $rendezVous->citoyen_id,
-            'titre' => 'Rendez-vous annulé',
-            'message' => "Votre rendez-vous du ".$rendezVous->date_rdv->format('d/m/Y')." a été annulé par la mairie.",
-            'type' => 'rendez_vous',
-            'lu' => false,
-        ]);
+        $this->notifications->notifier(
+            $rendezVous->citoyen,
+            'Rendez-vous annulé',
+            "Votre rendez-vous du ".$rendezVous->date_rdv->format('d/m/Y')." a été annulé par la mairie.",
+            'rendez_vous'
+        );
 
         return back()->with('success', 'Rendez-vous annulé.');
     }
