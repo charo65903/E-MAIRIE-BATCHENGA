@@ -17,11 +17,19 @@ use App\Http\Controllers\Agent\DemandeController as AgentDemandeController;
 use App\Http\Controllers\Agent\RendezVousController as AgentRendezVousController;
 use App\Http\Controllers\Agent\ActeController;
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\ServiceController as AdminServiceController;
+
+use App\Http\Controllers\ChatbotController;
+
+use App\Http\Controllers\PublicController;
+
 use App\Http\Controllers\DocumentVerificationController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [PublicController::class, 'accueil'])->name('accueil');
+
+Route::get('/services', [PublicController::class, 'services'])->name('public.services');
 
 Route::get('/dashboard', function () {
     return match (auth()->user()->role) {
@@ -97,5 +105,20 @@ Route::middleware(['auth', 'role:agent'])->prefix('agent')->name('agent.')->grou
 
 // --- Espace administrateur ---
 Route::middleware(['auth', 'role:administrateur'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/tableau-de-bord', fn () => view('admin.dashboard'))->name('dashboard');
+    Route::get('/tableau-de-bord', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/utilisateurs', [AdminUserController::class, 'index'])->name('utilisateurs.index');
+    Route::patch('/utilisateurs/{utilisateur}/basculer-actif', [AdminUserController::class, 'basculerActif'])->name('utilisateurs.basculer-actif');
+    Route::get('/utilisateurs/creer-agent', [AdminUserController::class, 'createAgent'])->name('utilisateurs.create-agent');
+    Route::post('/utilisateurs/creer-agent', [AdminUserController::class, 'storeAgent'])->name('utilisateurs.store-agent');
+
+    Route::get('/services', [AdminServiceController::class, 'index'])->name('services.index');
+    Route::get('/services/creer', [AdminServiceController::class, 'create'])->name('services.create');
+    Route::post('/services', [AdminServiceController::class, 'store'])->name('services.store');
+    Route::get('/services/{service}/modifier', [AdminServiceController::class, 'edit'])->name('services.edit');
+    Route::put('/services/{service}', [AdminServiceController::class, 'update'])->name('services.update');
+    Route::patch('/services/{service}/basculer-actif', [AdminServiceController::class, 'basculerActif'])->name('services.basculer-actif');
 });
+Route::post('/chatbot/message', [ChatbotController::class, 'repondre'])
+    ->middleware('throttle:30,1')
+    ->name('chatbot.repondre');

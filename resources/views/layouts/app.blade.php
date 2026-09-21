@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'E-Mairie Batchenga')</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    {{-- Provisoire : sera remplacé par un build Vite + Tailwind à l'étape design (§18-19) --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50 min-h-screen">
     <nav class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">

@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Espace agent') — E-Mairie Batchenga</title>
+    <title>@yield('title', 'Espace administrateur') — E-Mairie Batchenga</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50 min-h-screen">
     <div class="flex flex-col md:flex-row min-h-screen">
         <aside class="w-full md:w-60 bg-white border-b md:border-b-0 md:border-r border-gray-200 md:min-h-screen">
             <div class="px-5 py-4 border-b border-gray-100">
-                <a href="{{ route('agent.dashboard') }}" class="font-semibold text-green-700">E-Mairie Batchenga</a>
-                <p class="text-xs text-gray-400 mt-0.5">Espace agent</p>
+                <a href="{{ route('admin.dashboard') }}" class="font-semibold text-green-700">E-Mairie Batchenga</a>
+                <p class="text-xs text-gray-400 mt-0.5">Espace administrateur</p>
             </div>
             <nav class="flex md:flex-col gap-1 p-3 overflow-x-auto md:overflow-visible text-sm">
                 @php
                     $liens = [
-                        ['route' => 'agent.dashboard', 'label' => 'Tableau de bord'],
-                        ['route' => 'agent.demandes.index', 'label' => 'Demandes'],
-                        ['route' => 'agent.rendez-vous.index', 'label' => 'Rendez-vous'],
-                        ['route' => 'agent.actes.index', 'label' => "Actes d'état civil"],
+                        ['route' => 'admin.dashboard', 'label' => 'Tableau de bord'],
+                        ['route' => 'admin.utilisateurs.index', 'label' => 'Utilisateurs'],
+                        ['route' => 'admin.services.index', 'label' => 'Services'],
                     ];
                 @endphp
                 @foreach ($liens as $lien)

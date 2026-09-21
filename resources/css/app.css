@@ -1,9 +1,16 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-
+/* Palette E-Mairie Batchenga — inspirée du drapeau camerounais, usage sobre */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-vert-mairie-50: #f0faf3;
+    --color-vert-mairie-100: #d9f2e1;
+    --color-vert-mairie-600: #15803d;
+    --color-vert-mairie-700: #166534;
+    --color-vert-mairie-800: #14532d;
+
+    --color-rouge-mairie-50: #fef2f2;
+    --color-rouge-mairie-600: #dc2626;
+    --color-rouge-mairie-700: #b91c1c;
+
+    --color-jaune-mairie-500: #eab308;
 }
